@@ -4,6 +4,9 @@ namespace Interactive_Storyteller_API.Models
 
     public class Context : Item
     {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
         [JsonPropertyName("sessionID")]
         public long SessionID { get; set; }
 

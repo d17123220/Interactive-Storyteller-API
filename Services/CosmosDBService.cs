@@ -101,12 +101,12 @@ namespace Interactive_Storyteller_API.Services
         // Additional methods
 
         // Add new database/container to the list of available containers
-        public void AddContainerDefinition(string databaseName, string containerName)
+        public async Task AddContainerDefinition(string databaseName, string containerName)
         {
             // check if container with such id already in the list
             if (null != _containers.FirstOrDefault(container => container.Id.Equals(containerName)))
             {
-                _containers.Add(_dbClient.GetContainer(databaseName, containerName));
+                await Task.Run(() => _containers.Add(_dbClient.GetContainer(databaseName, containerName)));
             }
         }
 

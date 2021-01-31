@@ -73,7 +73,7 @@ namespace Interactive_Storyteller_API
             // CosmosDB containers
             var containerNames = Configuration
                                     .AsEnumerable()
-                                    .Where(o => o.Key.Contains("CosmosDB:ContainerName"))
+                                    .Where(o => o.Key.Contains("CosmosDB:ContainerName:"))
                                     .Select(o => o.Value)
                                     .ToList();   
 

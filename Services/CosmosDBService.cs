@@ -21,7 +21,7 @@ namespace Interactive_Storyteller_API.Services
 
         // Methods for the interface
 
-        public async Task<IEnumerable<Item>> GetItemsAsync(string queryString, string container="sessions")
+        public async Task<IEnumerable<Item>> GetItemsAsync(string queryString, string container="Sessions")
         {
             var _container = GetContainerByName(container);
             if (null != _container)
@@ -41,7 +41,7 @@ namespace Interactive_Storyteller_API.Services
 
         }
 
-        public async Task<Item> GetItemAsync(string id, string container="sessions")
+        public async Task<Item> GetItemAsync(string id, string container="Sessions")
         {
             var _container = GetContainerByName(container);
             if (null != _container)
@@ -61,7 +61,7 @@ namespace Interactive_Storyteller_API.Services
 
         }
 
-        public async Task<bool> AddItemAsync(Item item, string container="sessions")
+        public async Task<bool> AddItemAsync(Item item, string container="Sessions")
         {
             var _container = GetContainerByName(container);
             if (null != _container)
@@ -74,7 +74,7 @@ namespace Interactive_Storyteller_API.Services
 
         }
 
-        public async Task<bool> UpdateItemAsync(string id, Item item, string container="sessions")
+        public async Task<bool> UpdateItemAsync(string id, Item item, string container="Sessions")
         {
             var _container = GetContainerByName(container);
             if (null != _container)
@@ -86,7 +86,7 @@ namespace Interactive_Storyteller_API.Services
                 return false;
         }
 
-        public async Task<bool> DeleteItemAsync(string id, string container="sessions")
+        public async Task<bool> DeleteItemAsync(string id, string container="Sessions")
         {
             var _container = GetContainerByName(container);
             if (null != _container)

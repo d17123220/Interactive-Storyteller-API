@@ -7,10 +7,10 @@ namespace Interactive_Storyteller_API.Services
 
     public interface ICosmosDBService
     {
-        Task<IEnumerable<Item>> GetItemsAsync(string queryString, string container);
-        Task<Item> GetItemAsync(string id, string container);
-        Task<bool> AddItemAsync(Item item, string container);
-        Task<bool> UpdateItemAsync(string id, Item item, string container);
+        Task<IEnumerable<T>> GetItemsAsync<T>(string queryString, string container);
+        Task<T> GetItemAsync<T>(string id, string container);
+        Task<bool> AddItemAsync<T>(T item, string container) where T : Item;
+        Task<bool> UpdateItemAsync<T>(T item, string container) where T : Item;
         Task<bool> DeleteItemAsync(string id, string container);    
     }
 }

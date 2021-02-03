@@ -79,15 +79,15 @@ namespace Interactive_Storyteller_API
 
             // initialize CosmosDB client
             Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
-            
+            // create database if missing
+            Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+                
             // initialize service
             CosmosDBService cosmosDbService = new CosmosDBService(client);
 
             // for each container in list:   
             containerNames.ForEach(async containerName => 
             {
-                // create database if missing
-                Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
                 // create container inside database, if missing
                 await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
                 // add container to the list inside service

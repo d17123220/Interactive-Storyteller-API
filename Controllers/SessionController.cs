@@ -48,7 +48,7 @@ namespace Interactive_Storyteller_API.Controllers
         } 
 
         // GET api/Session?sessionID=202&userName=user@email.address
-        // GET api/Sessiom/user@email.address/202
+        // GET api/Session/user@email.address/202
         // Checks if such session for such user exists
         [HttpGet("{userName}/{sessionID}")]
         public async Task<bool> GetSessionAsync(string userName, string sessionID)
@@ -116,16 +116,28 @@ namespace Interactive_Storyteller_API.Controllers
           
         }
 
-        [HttpDelete("{sessionID}")]
-        public async Task<IActionResult> DeleteSessionAsync(string sessionID)
+        // DELETE api/Session?sessionID=202&userName=user@email.address
+        // DELETE api/Session/user@email.address/202
+        // deletes a session entry from database
+        [HttpDelete("{userName}/{sessionID}")]
+        public async Task<IActionResult> DeleteSessionAsync(string userName, string sessionID)
         {
-            return NoContent();
+            var result = await _cosmosDBService.GetItemsAsync<Session>($"SELECT * FROM s WHERE s.userName = '{userName}' and s.sessionID = '{sessionID}'",containerName);            
+            if (result.Any())
+            {    
+                await _cosmosDBService.DeleteItemAsync(result.First().Id, containerName);
+                return NoContent();
+            }
+            else 
+                return NotFound();
         }
 
         [HttpPut("{sessionID}")]
         public async Task<IActionResult> PutSessionAsync(string sessionID, Session session)
         {
-            return NoContent(); 
+            // not implemented - nothing to do
+            await Task.Run(() => {});
+            return NotFound(); 
         }
 
         [HttpPatch("{sessionID}")]

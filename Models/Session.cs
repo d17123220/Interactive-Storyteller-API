@@ -1,19 +1,20 @@
 namespace Interactive_Storyteller_API.Models
 {
-    using System.Text.Json.Serialization;
+    using Newtonsoft.Json;
+    using System;
 
     public class Session : Item
     {
-        [JsonPropertyName("id")]
+        [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
-        [JsonPropertyName("userName")]
+        [JsonProperty(PropertyName = "userName")]
         public string UserName { get; set; }
 
-        [JsonPropertyName("sessionID")]
-        public long SessionID { get; set; }
+        [JsonProperty(PropertyName = "sessionID")]
+        public string SessionID { get; set; }
 
-        [JsonPropertyName("sessionPassword")]
+        [JsonProperty(PropertyName = "sessionPassword")]
         public string Password { get; set; }
     }
 }

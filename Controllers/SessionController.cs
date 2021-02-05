@@ -7,6 +7,7 @@ namespace Interactive_Storyteller_API.Controllers
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using System.Linq;
+    using System;
 
     using Interactive_Storyteller_API.Models;
     using Interactive_Storyteller_API.Services;
@@ -30,14 +31,14 @@ namespace Interactive_Storyteller_API.Controllers
         // GET: api/Session
         // Lists all session in database (debug only)
         [HttpGet]
-        public async Task<IEnumerable<Session>> GetSessionAsync()
+        public async Task<ActionResult<IEnumerable<Session>>> GetSessionAsync()
         {
             // debug:
             var sessions = await _cosmosDBService.GetItemsAsync<Session>("SELECT * FROM c", containerName);
             if (null != sessions)
-                return sessions;
+                return Ok(sessions);
             else
-                return new List<Session>();
+                return Ok();
 
             /* 
             // non debug:
@@ -49,10 +50,10 @@ namespace Interactive_Storyteller_API.Controllers
         // GET api/Session?sessionID=202&userName=user@email.address
         // GET api/Sessiom/user@email.address/202
         // Checks if such session for such user exists
-        [HttpGet("{userName}/{sessionID:long}")]
-        public async Task<bool> GetSessionAsync(string userName, long sessionID)
+        [HttpGet("{userName}/{sessionID}")]
+        public async Task<bool> GetSessionAsync(string userName, string sessionID)
         {
-            var sessions = await _cosmosDBService.GetItemsAsync<Session>($"SELECT * FROM s WHERE s.userName = \"{userName}\" and s.sessionID = {sessionID}", containerName);
+            var sessions = await _cosmosDBService.GetItemsAsync<Session>($"SELECT * FROM s WHERE s.userName = '{userName}' and s.sessionID = '{sessionID}'", containerName);
 
             if ( null == sessions || !sessions.Any() )
                 return false;
@@ -62,28 +63,73 @@ namespace Interactive_Storyteller_API.Controllers
         }
 
         // POST api/Session
-        // body of request should contain Session
+        // body of request should contain Session object
         // creates a new session for userName, generates new random session ID and password, obfuscates password and returns to UI
         [HttpPost]
         public async Task<ActionResult<Session>> PostSessionAsync(Session session)
         {
-            return null;
+            // Define local variables
+            bool result;
+            // Initialize random generator
+            Random random = new Random();
+
+            // clean unneeded fields
+            session.Id = Guid.NewGuid().ToString();
+            session.SessionID = null;
+            session.Password = null;
+            
+            // check if userName was passed in request body
+            if (string.IsNullOrEmpty(session.UserName))
+                return BadRequest();
+
+            // generate new sessionID till unique is found
+            do 
+            {
+                session.SessionID = Guid.NewGuid().ToString();
+                result = await GetSessionAsync(session.UserName, session.SessionID);
+                // if such session already exists
+            } 
+            while (result);
+
+            // generate random password
+            // https://jonathancrozier.com/blog/how-to-generate-a-random-string-with-c-sharp
+
+            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            string randomString = new string(
+                Enumerable
+                .Repeat(chars, 20)
+                .Select(
+                    s => s[random.Next(s.Length)]
+                ).ToArray()
+            );
+
+            session.Password = randomString;
+
+            result = await _cosmosDBService.AddItemAsync<Session>(session, containerName);
+            if (!result)
+                return BadRequest(session);
+            else
+            {
+                session.Password = "<redacted>";
+                return Ok(session);
+            }
+          
         }
 
-        [HttpDelete("{sessionID:long}")]
-        public async Task<IActionResult> DeleteSessionAsync(long sessionID)
+        [HttpDelete("{sessionID}")]
+        public async Task<IActionResult> DeleteSessionAsync(string sessionID)
         {
             return NoContent();
         }
 
-        [HttpPut("{sessionID:long}")]
-        public async Task<IActionResult> PutSessionAsync(long sessionID, Session session)
+        [HttpPut("{sessionID}")]
+        public async Task<IActionResult> PutSessionAsync(string sessionID, Session session)
         {
             return NoContent(); 
         }
 
-        [HttpPatch("{sessionID:long}")]
-        public async Task<IActionResult> PatchSessionAsync(long sessionID, Session session)
+        [HttpPatch("{sessionID}")]
+        public async Task<IActionResult> PatchSessionAsync(string sessionID, Session session)
         {
             // patch and put are interchangable here
             return await PutSessionAsync(sessionID, session);

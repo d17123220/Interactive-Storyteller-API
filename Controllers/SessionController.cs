@@ -53,7 +53,13 @@ namespace Interactive_Storyteller_API.Controllers
         [HttpGet("{userName}/{sessionID}")]
         public async Task<bool> GetSessionAsync(string userName, string sessionID)
         {
-            var sessions = await _cosmosDBService.GetItemsAsync<Session>($"SELECT * FROM s WHERE s.userName = '{userName}' and s.sessionID = '{sessionID}'", containerName);
+            string query = "";
+            if (userName.Equals("*"))
+                query = $"SELECT * FROM s WHERE s.sessionID = '{sessionID}'";
+            else
+                query = $"SELECT * FROM s WHERE s.userName = '{userName}' and s.sessionID = '{sessionID}'";
+            
+            var sessions = await _cosmosDBService.GetItemsAsync<Session>(query, containerName);
 
             if ( null == sessions || !sessions.Any() )
                 return false;
@@ -86,7 +92,7 @@ namespace Interactive_Storyteller_API.Controllers
             do 
             {
                 session.SessionID = Guid.NewGuid().ToString();
-                result = await GetSessionAsync(session.UserName, session.SessionID);
+                result = await GetSessionAsync("*", session.SessionID);
                 // if such session already exists
             } 
             while (result);
@@ -122,7 +128,7 @@ namespace Interactive_Storyteller_API.Controllers
         [HttpDelete("{userName}/{sessionID}")]
         public async Task<IActionResult> DeleteSessionAsync(string userName, string sessionID)
         {
-            var result = await _cosmosDBService.GetItemsAsync<Session>($"SELECT * FROM s WHERE s.userName = '{userName}' and s.sessionID = '{sessionID}'",containerName);            
+            var result = await _cosmosDBService.GetItemsAsync<Session>($"SELECT * FROM s WHERE s.userName = '{userName}' and s.sessionID = '{sessionID}'", containerName);            
             if (result.Any())
             {    
                 await _cosmosDBService.DeleteItemAsync(result.First().Id, containerName);

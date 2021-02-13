@@ -1,5 +1,3 @@
-
-
 namespace Interactive_Storyteller_API.Controllers
 {
     
@@ -8,10 +6,8 @@ namespace Interactive_Storyteller_API.Controllers
     using System.Threading.Tasks;
     using System.Linq;
     using System;
-
     using Interactive_Storyteller_API.Models;
     using Interactive_Storyteller_API.Services;
-
 
     [Route("api/[controller]")]
     [ApiController]

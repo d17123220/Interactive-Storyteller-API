@@ -32,6 +32,8 @@ namespace Interactive_Storyteller_API
             services.AddControllers();
 
             services.AddSingleton<ICosmosDBService>(InitializeCosmosClientInstanceAsync(Configuration).GetAwaiter().GetResult());
+            services.AddSingleton<IContentModerator, ContentModerator>(factory => new ContentModerator(Configuration["ContentModerator:Account"], Configuration["ContentModerator:Key"]));
+
 
             services.AddSwaggerGen(c =>
             {
@@ -95,7 +97,7 @@ namespace Interactive_Storyteller_API
             });
 
             // Do nothing. Satisfy debugger's requirement to have "await" in it
-            await Task.Run(() => {});
+            //await Task.Run(() => {});
 
             return cosmosDbService;
         }

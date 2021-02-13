@@ -12,7 +12,7 @@ namespace Interactive_Storyteller_API.Models
         public string CorrectedText { get; set; }
         
         [JsonProperty(PropertyName = "offensiveTerms")]
-        public IList<string> OffensiveTerms { get; set; }
+        public ISet<string> OffensiveTerms { get; set; }
 
     }
 }

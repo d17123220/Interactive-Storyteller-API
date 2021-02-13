@@ -32,7 +32,7 @@ namespace Interactive_Storyteller_API
             services.AddControllers();
 
             services.AddSingleton<ICosmosDBService>(InitializeCosmosClientInstanceAsync(Configuration).GetAwaiter().GetResult());
-            services.AddSingleton<IContentModerator, ContentModerator>(factory => new ContentModerator(Configuration["ContentModerator:Account"], Configuration["ContentModerator:Key"]));
+            services.AddSingleton<IContentModeratorService, ContentModeratorService>(factory => new ContentModeratorService(Configuration["ContentModerator:Account"], Configuration["ContentModerator:Key"]));
 
 
             services.AddSwaggerGen(c =>

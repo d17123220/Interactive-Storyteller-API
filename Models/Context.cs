@@ -19,5 +19,8 @@ namespace Interactive_Storyteller_API.Models
         [JsonProperty(PropertyName = "contextSequence")]
         public long SequenceNumber { get; set; }
 
+        [JsonProperty(PropertyName = "screenedContext")]
+        public ScreenedContext UserInput { get; set; }
+
     }
 }

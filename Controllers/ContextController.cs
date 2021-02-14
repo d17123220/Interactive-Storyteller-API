@@ -36,13 +36,13 @@ namespace Interactive_Storyteller_API.Controllers
         // POST: api/Context/check
         // check string passed as body in post (secure)
        [HttpPost("Check")]
-       public async Task<ActionResult<ScreenedContext>> PostContextAsync(string phrase) 
+       public async Task<ActionResult<ScreenedContext>> PostContextAsync(UserInput userInput) 
        {
-            if (string.IsNullOrEmpty(phrase))
+            if (string.IsNullOrEmpty(userInput.Text))
                 return NoContent();
             else
                 // check with content moderator and return result
-                return await _contentModerator.ModerateText(phrase);
+                return await _contentModerator.ModerateText(userInput.Text);
        }
 
 

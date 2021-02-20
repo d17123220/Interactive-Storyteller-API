@@ -42,11 +42,14 @@ namespace Interactive_Storyteller_API.Services
             // Details: https://docs.microsoft.com/en-us/rest/api/cognitiveservices/contentmoderator/textmoderation/screentext
             // and https://docs.microsoft.com/en-us/azure/cognitive-services/content-moderator/client-libraries?pivots=programming-language-csharp&tabs=cli
 
-            // create a new screened text objetc and add some values. Can be done through model itself
-            var screen = new ScreenedContext();
-            screen.OriginalText = answer.OriginalText;
-            screen.CorrectedText = answer.AutoCorrectedText;
-            screen.OffensiveTerms = new HashSet<string>();
+            // create a new screened text object and add some values. Can be done through model itself
+            var screen = new ScreenedContext()
+            {
+                OriginalText = answer.OriginalText,
+                CorrectedText = answer.AutoCorrectedText,
+                OffensiveTerms = new HashSet<string>(),
+                IsBounced = false
+            };
 
             // Check if ContentModerator found any offensive terms
             if (null != answer.Terms)
@@ -56,6 +59,7 @@ namespace Interactive_Storyteller_API.Services
                 {
                     screen.OffensiveTerms.Add(term.Term);
                 }
+                screen.IsBounced = true;
             }
 
             return screen;

@@ -8,19 +8,15 @@ namespace Interactive_Storyteller_API.Models
         public string Id { get; set; }
 
         [JsonProperty(PropertyName = "sessionID")]
-        public long SessionID { get; set; }
+        public string SessionID { get; set; }
 
-        [JsonProperty(PropertyName = "context")]
+        [JsonProperty(PropertyName = "sessionText")]
         public string SessionText { get; set; }
 
         [JsonProperty(PropertyName = "contextCreator")]
-        public string Creator { get; set; }
+        public string ContextCreator { get; set; }
 
-        [JsonProperty(PropertyName = "contextSequence")]
+        [JsonProperty(PropertyName = "sequenceNumber")]
         public long SequenceNumber { get; set; }
-
-        [JsonProperty(PropertyName = "screenedContext")]
-        public ScreenedContext UserInput { get; set; }
-
     }
 }

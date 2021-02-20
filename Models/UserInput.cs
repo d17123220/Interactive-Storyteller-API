@@ -6,5 +6,8 @@ namespace Interactive_Storyteller_API.Models
     {
         [JsonProperty(PropertyName = "text")]
         public string Text { get; set; }
+
+        [JsonProperty(PropertyName = "sessionID")]
+        public string SessionID { get; set; }
     }
 }

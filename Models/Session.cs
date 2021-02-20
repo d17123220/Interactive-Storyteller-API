@@ -14,7 +14,7 @@ namespace Interactive_Storyteller_API.Models
         [JsonProperty(PropertyName = "sessionID")]
         public string SessionID { get; set; }
 
-        [JsonProperty(PropertyName = "sessionPassword")]
+        [JsonProperty(PropertyName = "password")]
         public string Password { get; set; }
     }
 }

@@ -33,12 +33,12 @@ namespace Interactive_Storyteller_API.Controllers
             var query = $"SELECT * FROM s WHERE s.userName = '{userName}' and s.sessionID = '{sessionID}'";
             var sessions = await _cosmosDBService.GetItemsAsync<Session>(query, "Sessions");
 
-            if (sessions.Any())
+            if (null != sessions && sessions.Any())
             {
                 query = $"SELECT * FROM c WHERE c.sessionID = '{sessionID}'";
                 var contexts = await _cosmosDBService.GetItemsAsync<Context>(query, "Context");
                 
-                if (contexts.Any())
+                if (null != contexts && contexts.Any())
                 {
                     contexts = contexts.OrderBy(c => c.SequenceNumber);
                     return Ok(contexts);

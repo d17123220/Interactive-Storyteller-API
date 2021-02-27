@@ -34,6 +34,19 @@ namespace Interactive_Storyteller_API
             services.AddSingleton<ICosmosDBService>(InitializeCosmosClientInstanceAsync(Configuration).GetAwaiter().GetResult());
             services.AddSingleton<IContentModeratorService, ContentModeratorService>(factory => new ContentModeratorService(Configuration["ContentModerator:Account"], Configuration["ContentModerator:Key"]));
 
+            // Add typed htppclient using key and url from Configuration. Configuration should be added as user-secrets or environmental variables
+            services.AddHttpClient<IGPTService, GPTService>( 
+                client =>
+                {
+                    client.BaseAddress = new Uri(Configuration["DeepAI:Account"]);
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
+                    client.DefaultRequestHeaders.Add("User-Agent", "InteractiveStorytellerAPI");
+                    client.DefaultRequestHeaders.Add("api-key",Configuration["DeepAI:Key"]);
+                }   
+            );
+        
+
+
 
             services.AddSwaggerGen(c =>
             {

@@ -25,22 +25,11 @@ namespace Interactive_Storyteller_API.Controllers
         // api methods: GET (list), GET/{sessionID, userName} (read), POST (create), DELETE (delete), PATCH (modify), PUT (update)
 
         // GET: api/Session
-        // Lists all session in database (debug only)
+        // List not used
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Session>>> GetSessionAsync()
+        public ActionResult<IEnumerable<Session>> GetSession()
         {
-            // debug:
-            var sessions = await _cosmosDBService.GetItemsAsync<Session>("SELECT * FROM c", containerName);
-            if (null != sessions)
-                return Ok(sessions);
-            else
-                return Ok();
-
-            /* 
-            // non debug:
-            await Task.Run(() => {});
-            return null;
-            */
+            return NotFound();
         } 
 
         // GET api/Session?sessionID=202&userName=user@email.address

@@ -15,11 +15,13 @@ namespace Interactive_Storyteller_API.Controllers
     {
         private IContentModeratorService _contentModerator;
         private ICosmosDBService _cosmosDBService;
+        private IGPTService _gptService;
 
-        public ContextController(IContentModeratorService contentModerator, ICosmosDBService cosmosDBService)
+        public ContextController(IContentModeratorService contentModerator, ICosmosDBService cosmosDBService, IGPTService gptService)
         {
             _contentModerator = contentModerator;
             _cosmosDBService = cosmosDBService;
+            _gptService = gptService;
         }
 
 
@@ -40,7 +42,7 @@ namespace Interactive_Storyteller_API.Controllers
                 
                 if (null != contexts && contexts.Any())
                 {
-                    contexts = contexts.OrderBy(c => c.SequenceNumber);
+                    contexts = contexts.OrderBy(c => c.SequenceNumber).ToList();
                     return Ok(contexts);
                 }
                 else
@@ -61,7 +63,7 @@ namespace Interactive_Storyteller_API.Controllers
         [HttpPost]
         public async Task<ActionResult<Context>> PostContextAsync(UserInput userInput)
         {
-            string query;
+            string query, generatedText;
             long nextSequence = 0;
             bool result;
             Context context;
@@ -69,6 +71,11 @@ namespace Interactive_Storyteller_API.Controllers
             if (string.IsNullOrEmpty(userInput.Text) || string.IsNullOrEmpty(userInput.SessionID))
                 return BadRequest();
             
+            query = $"SELECT * FROM s WHERE s.sessionID = '{userInput.SessionID}'";
+            var sessions = await _cosmosDBService.GetItemsAsync<Session>(query, "Sessions");
+            if (null == sessions || !sessions.Any())
+                return BadRequest();
+
             // prepare userInput into context
             context = new Context()
             {
@@ -90,15 +97,28 @@ namespace Interactive_Storyteller_API.Controllers
             result = await _cosmosDBService.AddItemAsync<Context>(context, "Context");
 
             // send whole prepared context to API
-
-
+            var session = sessions.First();
+            var baseURL = $"{Url.ActionContext.HttpContext.Request.Scheme}://{Url.ActionContext.HttpContext.Request.Host.Value}";
+            if (!baseURL.Contains("localhost"))
+            {    
+                generatedText = await _gptService.GenerateText(session.SessionID, session.Password, baseURL);
+            }
+            else
+            {
+                // use text instead of callback for debug, as https://localhost is not available for callback
+                var tmpContexts = await GetContextAsync(session.UserName, session.SessionID);
+                var tmpObj = (ObjectResult) tmpContexts.Result;
+                var tmpList = (List<Context>) tmpObj.Value;
+                var tmpText = string.Join(" ",(tmpList.OrderBy(s => s.SequenceNumber).Select(s => s.SessionText)));
+                generatedText = await _gptService.GenerateText(tmpText);
+            }
             // prepare generated text into context
             context = new Context()
             {
                 Id = Guid.NewGuid().ToString(),
                 ContextCreator = "GPT",
                 SessionID = userInput.SessionID,
-                SessionText = "== GPT API Stub ==",
+                SessionText = generatedText.Replace("\n\n","\n"),
                 SequenceNumber = nextSequence
             };
 

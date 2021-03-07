@@ -109,7 +109,15 @@ namespace Interactive_Storyteller_API.Controllers
                 var tmpContexts = await GetContextAsync(session.UserName, session.SessionID);
                 var tmpObj = (ObjectResult) tmpContexts.Result;
                 var tmpList = (List<Context>) tmpObj.Value;
-                var tmpText = string.Join(" ",(tmpList.OrderBy(s => s.SequenceNumber).Select(s => s.SessionText)));
+                // Combine all user inputs into one big text
+                var tmpText = string.Join(" ",(tmpList.Where(c => c.ContextCreator.Equals("User")).OrderBy(s => s.SequenceNumber).Select(s => s.SessionText)));
+                // Split it into separate words (sub-tokens)
+                var tmpContextList = tmpText.Split(' ').ToList();
+                // Take only last tokens (up to tokensToTake) and combine them back into big text
+                int wordsToGenerate = 300; // how many tokens GPT will be able to generate
+                int tokensToTake = 1024 - wordsToGenerate; // up to 1024 
+                tmpText = string.Join(" ", tmpContextList.Skip(tmpContextList.Count < tokensToTake ? 0 : tmpContextList.Count - tokensToTake).ToList());
+                
                 generatedText = await _gptService.GenerateText(tmpText);
             }
             // prepare generated text into context

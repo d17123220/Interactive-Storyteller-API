@@ -44,12 +44,8 @@ namespace Interactive_Storyteller_API.Services
             // decode answer into stream and de-serialize stream into DeepAI object
             var responseString = await response.Content.ReadAsStringAsync();
             var sessionResponse = JsonConvert.DeserializeObject<DeepAI>(responseString);
-            
-            // Check what was the last - newline or dot
-            int lastDot = sessionResponse.CombinedText.LastIndexOf('.');
-            int lastNewLine = sessionResponse.CombinedText.LastIndexOf('\n');
-            int lastPosition = lastDot > lastNewLine ? lastDot : lastNewLine;
-            string trimmedText = sessionResponse.CombinedText.Substring(0,lastPosition+1).Trim();
+
+            var inputTextLength = text.Length;
 
             // remove input text from output text
             if (isUrl)
@@ -58,12 +54,28 @@ namespace Interactive_Storyteller_API.Services
                 // ensure recieved succsessfull answer
                 responseContext.EnsureSuccessStatusCode();
                 var sessionContext = await responseContext.Content.ReadAsStringAsync();
-                return trimmedText.Substring(sessionContext.Trim('\"').Length);
+                inputTextLength = sessionContext.Trim('\"').Length;
             }
-            else
-                return trimmedText.Substring(text.Length);
 
+            // Check what was earlier - first newline or last dot
+            bool isValidText = false;
+            int firstNewLine;
+            int offset = 0;
+            do
+            {
+                offset++;
+                firstNewLine = sessionResponse.CombinedText.IndexOf('\n', inputTextLength + offset);
+                // if newline is not found in the text or difference between input text and first new line more than 10 characters
+                if (firstNewLine == -1 || firstNewLine - inputTextLength > 10)
+                    isValidText = true;
+            }
+            while (!isValidText);
+            
+            int lastDot = sessionResponse.CombinedText.LastIndexOf('.');
+            int lastPosition = firstNewLine == -1 ? lastDot + 1 : firstNewLine;
+            string trimmedText = sessionResponse.CombinedText.Substring(0,lastPosition).Trim();
+
+            return trimmedText.Substring(inputTextLength).Trim();
         }
-
     }
 }
